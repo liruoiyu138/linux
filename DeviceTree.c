@@ -29,6 +29,8 @@ eg:  dtb-#(CONFIG_ARCH_EXYNOS) += exynos4210-origen.dtb
 		cp arch/arm/boot/dts/exynos4412-fs4412.dtb /tftpboot
 	5）.设置启动参数(加载内核到内存的0x41000000 加载dtb文件到0x42000000)
 		set bootcmd tftp 0x41000000 uImage \; tftp 0x42000000 exynos4412-fs4412.dtb \;bootm 0x41000000 - 0x42000000
+5. 编译完成后 ls /proc/device-tree 中即可看到添加的节点
+	ls ./new_node 可看到节点的属性键, cat ./new_node/property_xxx 可看到属性值
 
 四. dtb文件的使用过程
 1.展开dtb文件(树状结构) allnodes => 子节点(也可以包含子节点)
@@ -150,7 +152,21 @@ eg:
 	};
 
 };
-
-
-
-
+七. 常用 OP API
+	OF 提供的函数主要集中在drivers/of目录下
+1.根据 device_node 参数,在全局链表of_allnodes 中，查找合适的 device_node
+	struct device_node *of_find_node_by_path(const cahr *path);
+	struct device_node *of_find_node_by_name(const cahr *name);
+2.根据property结构的name参数,在指定的device node 中，查找合适的property
+	struct property *of_find_property(const struct device_node * np,
+		const char *name, int *leep);
+3.根据compat参数于device node 的 compatible 匹配,返回匹配度
+	int of_device_is_compatible(const struct device_node *device, 
+		const char *compat);
+4. 获得父节点device node
+	struct device_node *of_get_parent(const struct device_node *node);
+5. 根据属性名propname,读出属性的数组中sz个属性值给 outs_value
+	int of_property_read_u32_array(const struct device_node *np,
+		const char *propname, u32 out_values, size_t sz);
+6. 读取该设备的第indes个 irq号
+	unsigned int irq_of_parse_and_map(struct device_node *dev, int index); 
